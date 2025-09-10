@@ -1,0 +1,2 @@
+# Ignore only the top-level .venv directory
+/.venv/
