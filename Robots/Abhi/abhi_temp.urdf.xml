@@ -1,0 +1,160 @@
+<!-- file name is abhi_temp.urdf.xml-->
+
+<?xml version="1.0"?>
+<robot name="abhi_robot">
+
+  <!-- BASE -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/baseD.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/baseS.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- LINK 1 -->
+  <link name="link1">
+    <visual>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/link1D.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/link1S.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/> <!-- adjust -->
+    <axis xyz="0 0 1"/> <!-- adjust -->
+    <limit lower="-3.14" upper="3.14" effort="10" velocity="1.0"/>
+  </joint>
+
+  <!-- LINK 2 -->
+  <link name="link2">
+    <visual>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/link2D.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/link2S.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint2" type="revolute">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/> <!-- adjust -->
+    <axis xyz="0 1 0"/> <!-- adjust -->
+    <limit lower="-3.14" upper="3.14" effort="10" velocity="1.0"/>
+  </joint>
+
+  <!-- LINK 3 -->
+  <link name="link3">
+    <visual>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/link3D.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/link3S.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint3" type="revolute">
+    <parent link="link2"/>
+    <child link="link3"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/> <!-- adjust -->
+    <axis xyz="0 1 0"/> <!-- adjust -->
+    <limit lower="-3.14" upper="3.14" effort="10" velocity="1.0"/>
+  </joint>
+
+  <!-- LINK 4 -->
+  <link name="link4">
+    <visual>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/link4D.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/link4S.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint4" type="revolute">
+    <parent link="link3"/>
+    <child link="link4"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/> <!-- adjust -->
+    <axis xyz="1 0 0"/> <!-- adjust -->
+    <limit lower="-3.14" upper="3.14" effort="10" velocity="1.0"/>
+  </joint>
+
+  <!-- LINK 5 -->
+  <link name="link5">
+    <visual>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/link5D.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/link5S.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint5" type="revolute">
+    <parent link="link4"/>
+    <child link="link5"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/> <!-- adjust -->
+    <axis xyz="0 1 0"/> <!-- adjust -->
+    <limit lower="-3.14" upper="3.14" effort="10" velocity="1.0"/>
+  </joint>
+
+  <!-- LINK 6 -->
+  <link name="link6">
+    <visual>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/link6D.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="file:///c:/Users/abhin/OneDrive/Documents/UTS/Spring Semester 2025/41013 Industrial Robotics/Assignments/A2/41013-Assignment-2/Robots/Abhi/link6S.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="joint6" type="revolute">
+    <parent link="link5"/>
+    <child link="link6"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/> <!-- adjust -->
+    <axis xyz="0 0 1"/> <!-- adjust -->
+    <limit lower="-3.14" upper="3.14" effort="10" velocity="1.0"/>
+  </joint>
+
+  <!-- END-EFFECTOR (optional) -->
+  <link name="ee_link"/>
+  <joint name="ee_fixed" type="fixed">
+    <parent link="link6"/>
+    <child link="ee_link"/>
+    <origin xyz="0 0 0.05" rpy="0 0 0"/> <!-- adjust -->
+  </joint> -->
+
+</robot>
