@@ -18,13 +18,13 @@ class myRobot(DHRobot3D):
         """
         1-DOF robot with axis visualization and a 1m stick attached.
         """
-        # DH links
+        # DH link
         links = self._create_DH()
 
         # Names of 3D links
         link3D_names = dict(
-            link0='baseD',
-            link1='link1D'
+            link0='baseS',
+            link1='link1S'
         )
 
         # Joint configuration
@@ -75,14 +75,6 @@ class myRobot(DHRobot3D):
         # Add the robot with frames visible
         self.add_to_env(env )
 
-        # Attach a 1m stick along X of joint 1
-        stick_length = 1.0
-        stick_trans = SE3(stick_length/2, 0, 0)  # center of stick at joint axis
-        env.add_box(length=stick_length, width=0.05, height=0.05, pose=stick_trans, color=(1,0,0))
-
-        # Initial FK
-        print("Initial end of stick position:", self.fkine(self.q) * SE3(stick_length,0,0))
-
         # Rotate 90 degrees
         q_goal = [pi/2]
         qtraj = rtb.jtraj(self.q, q_goal, 50).q
@@ -90,10 +82,6 @@ class myRobot(DHRobot3D):
         for q in qtraj:
             self.q = q
             env.step(0.02)
-
-        
-        # Final FK
-        print("Final end of stick position:", self.fkine(q_goal) * SE3(stick_length,0,0))
 
         env.hold()
         time.sleep(5)
