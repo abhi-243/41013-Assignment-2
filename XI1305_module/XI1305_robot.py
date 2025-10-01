@@ -36,7 +36,7 @@ class XI1305(DHRobot3D):
 
         current_path = os.path.abspath(os.path.dirname(__file__))
         super().__init__(links, link3D_names, name = 'XI1305', link3d_dir = current_path, qtest = qtest, qtest_transforms = qtest_transforms)
-        self.base = self.base * SE3.Rx(pi/2) * SE3.Ry(pi/2)
+        #self.base = self.base * SE3.Rx(pi/2) * SE3.Ry(pi/2)
         self.q = qtest
 
     def _create_DH(self):
@@ -53,3 +53,28 @@ class XI1305(DHRobot3D):
                 link = rtb.RevoluteDH(d=d[i], a=a[i], alpha=alpha[i], offset=offset[i], qlim=qlim[i])
                 links.append(link)
             return links
+    
+    def test(self):
+        """
+        Test the class by adding 3d objects into a new Swift window and do a simple movement
+        """
+        env = swift.Swift()
+        env.launch(realtime= True)
+        self.q = self._qtest
+        self.add_to_env(env)
+        fig = self.plot(self.q)
+        input("delay")
+        q_goal = [self.q[i]-pi/3 for i in range(self.n)]
+        qtraj = rtb.jtraj(self.q, q_goal, 50).q
+        
+        for q in qtraj:
+            self.q = q
+            env.step(0.02)
+            fig.step(0.01)
+        time.sleep(3)
+        # env.hold()
+
+# ---------------------------------------------------------------------------------------#
+if __name__ == "__main__":
+    r = XI1305()
+    r.test()
