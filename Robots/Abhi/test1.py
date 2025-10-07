@@ -10,7 +10,7 @@ import os
 # Useful variables
 from math import pi
 
-class XI1305(DHRobot3D):
+class IRB120(DHRobot3D):
     def __init__(self):
         # DH links
         links = self._create_DH()
@@ -25,17 +25,17 @@ class XI1305(DHRobot3D):
                             link6 = 'link6')
 
         # A joint config and the 3D object transforms to match that config
-        qtest = [0,0,0,pi,0,0]
+        qtest = [0,0,0,0,0,0]
         qtest_transforms = [spb.transl(0,0,0),
-                            spb.transl(0,0,0),
-                            spb.transl(0,0,0),
-                            spb.transl(0,0,0),
-                            spb.transl(0,0,0),
-                            spb.transl(0,0,0),
-                            spb.transl(0,0,0),]
+                            spb.transl(0,0,0.166) @ spb.trotz(np.pi),
+                            spb.transl(0,0,0.290) @ spb.trotz(np.pi),
+                            spb.transl(0,-0.0095,0.560),
+                            spb.transl(-0.1496,0,0.630),
+                            spb.transl(-0.302,0,0.630) @ spb.trotx(np.pi/2),
+                            spb.transl(-0.3614,0,0.630),]
 
         current_path = os.path.abspath(os.path.dirname(__file__))
-        super().__init__(links, link3D_names, name = 'XI1305', link3d_dir = current_path, qtest = qtest, qtest_transforms = qtest_transforms)
+        super().__init__(links, link3D_names, name = 'IRB120', link3d_dir = current_path, qtest = qtest, qtest_transforms = qtest_transforms)
         #self.base = self.base * SE3.Rx(pi/2) * SE3.Ry(pi/2)
         self.q = qtest
 
@@ -44,11 +44,11 @@ class XI1305(DHRobot3D):
             Create robot's standard DH model
             """
             links = [] 
-            a = [0,0,-0.053,-0.0778,0,-0.0752]
-            d = [0.147,0.118,0.285,0.1605,0.18,0.0652]     # Static UR3: [0.1519, 0, 0, 0.11235, 0.08535, 0.0819]
-            alpha = [-pi/2,0,-pi/2,pi/2,-pi/2,0]
-            offset = [0,-1.3849,1.3849,0,0,0]
-            qlim = [[-2*pi, 2*pi] for _ in range(6)]
+            a = [0, 0.270, 0.070, 0, 0, 0]
+            d = [0.290, 0, 0, 0.302, 0, 0.072]
+            alpha = [-np.pi/2, 0, -np.pi/2, np.pi/2, -np.pi/2, 0]
+            offset = [0, -pi/2, 0, 0, 0,0]
+            qlim = [[-np.pi, np.pi] for _ in range(6)]
             for i in range(6):
                 link = rtb.RevoluteDH(d=d[i], a=a[i], alpha=alpha[i], offset=offset[i], qlim=qlim[i])
                 links.append(link)
@@ -68,7 +68,7 @@ class XI1305(DHRobot3D):
         qtraj = rtb.jtraj(self.q, q_goal, 50).q
         
         for q in qtraj:
-            self.q = q
+            self.q = [-qi for qi in q]
             env.step(0.02)
             fig.step(0.01)
         time.sleep(3)
@@ -76,6 +76,6 @@ class XI1305(DHRobot3D):
 
 # ---------------------------------------------------------------------------------------#
 if __name__ == "__main__":
-    r = XI1305()
+    r = IRB120()
     r.test()
     input("press enter to quit")
