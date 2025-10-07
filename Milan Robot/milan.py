@@ -7,74 +7,108 @@ from ir_support.robots.DHRobot3D import DHRobot3D
 import time
 import os
 
-# Useful variables
 from math import pi
 
-class XI1305(DHRobot3D):
+class myCobot(DHRobot3D):
     def __init__(self):
         # DH links
         links = self._create_DH()
 
         # Names of the robot link files in the directory
-        link3D_names = dict(link0 = 'XI1305_1', color0 = (0.2,0.2,0.2,1),      # color option only takes effect for stl file
-                            link1 = 'XI1305_2', color1=(0.5,0,0,1),
-                            link2 = 'XI1305_3',
-                            link3 = 'XI1305_4',
-                            link4 = 'XI1305_5',
-                            link5 = 'XI1305_6',
-                            link6 = 'XI1305_7')
+        link3D_names = dict(
+            link0='myCobotLink_1', color0=(0.2,0.2,0.2,1),
+            link1='myCobotLink_2', color1=(0.5,0,0,1),
+            link2='myCobotLink_3', 
+            link3='myCobotLink_4',
+            link4='myCobotLink_5',
+            link5='myCobotLink_6',
+            link6='myCobotAttach'
+        )
 
         # A joint config and the 3D object transforms to match that config
-        qtest = [0,0,0,pi,0,0]
-        qtest_transforms = [spb.transl(0,0,0),
-                            spb.transl(0,0.147,0),
-                            spb.transl(-0.06,0.265,0),
-                            spb.transl(-0.043,0.550,-0.053),
-                            spb.transl(0.003,0.3895,-0.1308),
-                            spb.transl(0.015,0.2095,-0.1308),
-                            spb.transl(0,0.1443,-0.206) @ spb.trotz(0.56723)]
+        qtest = [0,0,0,0,0,0]
+
+        # Small offsets to align STL links visually with joint axes
+        qtest_transforms = [
+            spb.transl(0,0,0),
+            spb.transl(0, 0, 0) @ spb.r2t(spb.rotz(3/2*pi)) ,  # adjust link2 to stay connected
+            spb.transl(0,0,0),
+            spb.transl(0,0,0),
+            spb.transl(0,0,0),
+            spb.transl(0,0,0),
+            spb.transl(0,0,0)
+        ]
 
         current_path = os.path.abspath(os.path.dirname(__file__))
-        super().__init__(links, link3D_names, name = 'XI1305', link3d_dir = current_path, qtest = qtest, qtest_transforms = qtest_transforms)
-        #self.base = self.base * SE3.Rx(pi/2) * SE3.Ry(pi/2)
+        link3d_dir = os.path.join(current_path, "robotlinkstl")
+        super().__init__(
+            links, link3D_names, name='myCobot',
+            link3d_dir=link3d_dir, qtest=qtest,
+            qtest_transforms=qtest_transforms
+        )
+
         self.q = qtest
 
     def _create_DH(self):
-            """
-            Create robot's standard DH model
-            """
-            links = [] 
-            a = [0,0,-0.053,-0.0778,0,-0.0752]
-            d = [0.147,0.118,0.285,0.1605,0.18,0.0652]     # Static UR3: [0.1519, 0, 0, 0.11235, 0.08535, 0.0819]
-            alpha = [-pi/2,0,-pi/2,pi/2,-pi/2,0]
-            offset = [0,-1.3849,1.3849,0,0,0]
-            qlim = [[-2*pi, 2*pi] for _ in range(6)]
-            for i in range(6):
-                link = rtb.RevoluteDH(d=d[i], a=a[i], alpha=alpha[i], offset=offset[i], qlim=qlim[i])
-                links.append(link)
-            return links
-    
-    def test(self):
         """
-        Test the class by adding 3d objects into a new Swift window and do a simple movement
+        Create robot's DH model.
+        Joint 2 rotates left-right (vertical axis).
         """
-        env = swift.Swift()
-        env.launch(realtime= True)
-        self.q = self._qtest
-        self.add_to_env(env)
-        fig = self.plot(self.q)
-        input("delay")
-        q_goal = [self.q[i]-pi/3 for i in range(self.n)]
-        qtraj = rtb.jtraj(self.q, q_goal, 50).q
-        
-        for q in qtraj:
-            self.q = q
-            env.step(0.02)
-            fig.step(0.01)
-        time.sleep(3)
-        # env.hold()
 
-# ---------------------------------------------------------------------------------------#
+        links = []
+        a = [0, 0.135, 0.120, 0, 0, 0]
+        d = [0.1739, 0, 0, 0.08878, 0.095, 0.0655]
+        alpha = [-pi/2, 0, -pi/2, pi/2, -pi/2, 0]
+        offset = [0, -1.3849, 1.3849, 0, 0, 0]
+
+        qlim = [[-2*pi, 2*pi] for _ in range(6)]
+        for i in range(6):
+            link = rtb.RevoluteDH(d=d[i], a=a[i], alpha=alpha[i], offset=offset[i], qlim=qlim[i])
+            links.append(link)
+        return links
+
+
+def test(self):
+    """Add robot to Swift and show default pose"""
+    self.q = [0, 0, 0, 0, 0, 0]
+    self.add_to_env(env)
+    self.plot(self.q)
+    time.sleep(1)
+
+
 if __name__ == "__main__":
-    r = XI1305()
-    r.test()
+    env = swift.Swift()
+    env.launch(realtime=True)
+
+    r = myCobot()
+    r.add_to_env(env)
+    r.q = [0, 0, 0, 0, 0, 0]
+    r.plot(r.q)
+
+
+
+
+    # Helper function to rotate one joint back and forth
+    def test_joint(robot, joint_index, angle_range=np.linspace(-pi/3, pi/3, 30), delay=0.05):
+        q = robot.q.copy()
+        print(f"\n--- Testing joint {joint_index+1} ---")
+        for angle in angle_range:
+            q[joint_index] = angle
+            robot.q = q
+            env.step(delay)
+        for angle in reversed(angle_range):
+            q[joint_index] = angle
+            robot.q = q
+            env.step(delay)
+
+
+    # Sequentially test all joints
+    for i in range(r.n):
+        input(f"\nPress Enter to test joint {i+1}...")
+        test_joint(r, i)
+
+    print("\n✅ Joint rotation test complete!")
+
+
+
+    
