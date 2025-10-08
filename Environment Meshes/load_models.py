@@ -59,9 +59,9 @@ position_map = {
     "scaled_6029208(2).stl"    : (0.48, -0.131, -0.015),
     "scaled_6029208(3).stl"    : (-0.16, 0.291, -0.015),
     "scaled_6029208(4).stl"    : (0.48, 0.291, -0.015),
-    "scaled_6058966.stl"       : (0.6, 0.08, 0.216),
+    "scaled_6058966.stl"       : (0.6, 0.08, 0.2),
     "scaled_6061047(1).stl"    : (0.08, 0.2, 0.032),
-    "scaled_6061047(2).stl"    : (0.08, -0.4, 0.032),
+    "scaled_6061047(2).stl"    : (0.08, -0.03975, 0.032),
     "scaled_6170524.stl"       : (-0.4, 0.08, 0.),
     "scaled_6186974.stl"       : (0.44, 0.08, 0.128),
     "scaled_6218226(1).stl"    : (-0.16, -0.131, 0.015),
@@ -75,41 +75,9 @@ position_map = {
     "scaled_6365907(1).stl"    : (0.16, -0.12, 0.032),
     "scaled_6365907(2).stl"    : (0.16, 0.28, 0.032),
     "scaled_6365908.stl"       : (-0.08, 0.08, 0.032),
-    "scaled_6370526.stl"       : (0.6, 0.08, 0.224)
+    "scaled_6370526.stl"       : (0.6, 0.08, 0.191)
 }
 
-#rotation_map = {
-#    "scaled_9551.stl"          : (0, 0, -np.pi/2),
-#    "scaled_241223(1).stl"     : (0, 0, np.pi/2),
-#    "scaled_241223(2).stl"     : (0, 0, np.pi/2),
-#    "scaled_303701.stl"        : (0, 0, -np.pi/2),
-#    "scaled_4211065.stl"       : (0, 0, np.pi/2),
-#    "scaled_4548180.stl"       : (0, 0, -np.pi/2),
-#    "scaled_4632100(1).stl"    : (0, 0, np.pi/2),
-#    "scaled_4632100(2).stl"    : (0, 0, np.pi/2),
-#    "scaled_4632100(3).stl"    : (0, 0, np.pi/2),
-#    "scaled_6029208(1).stl"    : (0, 0, -np.pi/2),
-#    "scaled_6029208(2).stl"    : (0, 0, -np.pi/2),
-#    "scaled_6029208(3).stl"    : (0, 0, np.pi/2),
-#    "scaled_6029208(4).stl"    : (0, 0, np.pi/2),
-#    "scaled_6058966.stl"       : (0, 0, np.pi/2),
-#    "scaled_6061047(1).stl"    : (0, 0, 0),
-#    "scaled_6061047(2).stl"    : (0, 0, np.pi),
-#    "scaled_6170524.stl"       : (0, 0, -np.pi/2),
-#    "scaled_6186974.stl"       : (0, 0, 0),
-#    "scaled_6218226(1).stl"    : (0, 0, np.pi/2),
-#    "scaled_6218226(2).stl"    : (0, 0, -np.pi/2),
-#    "scaled_6218226(3).stl"    : (0, 0, np.pi/2),
-#    "scaled_6218226(4).stl"    : (0, 0, -np.pi/2),
-#    "scaled_6248833.stl"       : (0, 0, np.pi/2),
-#    "scaled_6251290.stl"       : (np.pi/2, 0, np.pi/2),
-#    "scaled_6285534.stl"       : (0, 0, np.pi/2),
-#    "scaled_6329585.stl"       : (0, 0, np.pi/2),
-#    "scaled_6365907(1).stl"    : (0, 0, 0),
-#    "scaled_6365907(2).stl"    : (0, 0, np.pi),
-#    "scaled_6365908.stl"       : (0, 0, -np.pi/2),
-#    "scaled_6370526.stl"       : (0, 0, np.pi/2)
-#}
 
 rotation_map = {
     "scaled_9551.stl"          : (0, 0, 0),
@@ -127,7 +95,7 @@ rotation_map = {
     "scaled_6029208(4).stl"    : (np.pi/2, 0, 0),
     "scaled_6058966.stl"       : (np.pi/2, 0, 0),
     "scaled_6061047(1).stl"    : (0, 0, 0),
-    "scaled_6061047(2).stl"    : (np.pi/2, 0, 0),
+    "scaled_6061047(2).stl"    : (np.pi, 0, 0),
     "scaled_6170524.stl"       : (-np.pi/2, 0, 0),
     "scaled_6186974.stl"       : (0, 0, 0),
     "scaled_6218226(1).stl"    : (np.pi/2, 0, 0),
@@ -135,13 +103,13 @@ rotation_map = {
     "scaled_6218226(3).stl"    : (np.pi/2, 0, 0),
     "scaled_6218226(4).stl"    : (-np.pi/2, 0, 0),
     "scaled_6248833.stl"       : (np.pi/2, 0, 0),
-    "scaled_6251290.stl"       : (np.pi/2, 0, np.pi/2),
+    "scaled_6251290.stl"       : (0, np.pi/2, np.pi/2),
     "scaled_6285534.stl"       : (np.pi/2, 0, 0),
     "scaled_6329585.stl"       : (np.pi/2, 0, 0),
     "scaled_6365907(1).stl"    : (0, 0, 0),
     "scaled_6365907(2).stl"    : (np.pi, 0, 0),
     "scaled_6365908.stl"       : (-np.pi/2, 0, 0),
-    "scaled_6370526.stl"       : (0, 0, 0)
+    "scaled_6370526.stl"       : (-np.pi/2, 0, 0)
 }
 
 # ===== MAIN LOOP =====
