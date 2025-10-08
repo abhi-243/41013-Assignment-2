@@ -17,11 +17,11 @@ class myCobot(DHRobot3D):
         # Names of the robot link files in the directory
         link3D_names = dict(
             link0='myCobotLink_1', color0=(0.2,0.2,0.2,1),
-            link1='myCobotLink_2', color1=(0.5,0,0,1),
-            link2='myCobotLink_3', 
-            link3='myCobotLink_4',
-            link4='myCobotLink_5',
-            link5='myCobotLink_6',
+            link1='myCobotLink_1.1', color1=(0.5,0,0,1),
+            link2='myCobotLink_3.2', 
+            link3='myCobotLink_4.1',
+            link4='myCobotLink_5.1',
+            link5='myCobotLink_6.1',
             link6='myCobotAttach'
         )
 
@@ -30,13 +30,13 @@ class myCobot(DHRobot3D):
 
         # Small offsets to align STL links visually with joint axes
         qtest_transforms = [
-            spb.transl(0,0,0),
-            spb.transl(0, 0, 0) @ spb.r2t(spb.rotz(3/2*pi)) ,  # adjust link2 to stay connected
-            spb.transl(0,0,0),
-            spb.transl(0,0,0),
-            spb.transl(0,0,0),
-            spb.transl(0,0,0),
-            spb.transl(0,0,0)
+            spb.transl(0,0,0)@ spb.r2t(spb.rotz(3/2*pi)),
+            spb.transl(0, 0, 0) @ spb.r2t(spb.rotz(pi)),  # adjust link2 to stay connected
+            spb.transl(0,0,0)@ spb.r2t(spb.rotz(3/2*pi)),
+            spb.transl(0,0,0)@ spb.r2t(spb.rotz(3/2*pi)),
+            spb.transl(0,0,0)@ spb.r2t(spb.rotz(3/2*pi)),
+            spb.transl(0,0,0)@ spb.r2t(spb.rotz(3/2*pi)),
+            spb.transl(0,0,0)@ spb.r2t(spb.rotz(3/2*pi))
         ]
 
         current_path = os.path.abspath(os.path.dirname(__file__))
@@ -56,12 +56,12 @@ class myCobot(DHRobot3D):
         """
 
         links = []
-        a = [0, 0.135, 0.120, 0, 0, 0]
-        d = [0.1739, 0, 0, 0.08878, 0.095, 0.0655]
-        alpha = [-pi/2, 0, -pi/2, pi/2, -pi/2, 0]
-        offset = [0, -1.3849, 1.3849, 0, 0, 0]
+        a = [0, 0.4, 0.120, 0, 0, 0]
+        d = [0.68, 0, 0, 0.09878, 0.095, 0.0655]
+        alpha = [pi/2, 0, 0, pi/2, -pi/2, -pi]
+        offset = [0,pi/2, 0, pi/2, pi, -pi/2]
 
-        qlim = [[-2*pi, 2*pi] for _ in range(6)]
+        qlim = [[-pi/2, pi/2] for _ in range(6)]
         for i in range(6):
             link = rtb.RevoluteDH(d=d[i], a=a[i], alpha=alpha[i], offset=offset[i], qlim=qlim[i])
             links.append(link)
@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
 
     # Helper function to rotate one joint back and forth
-    def test_joint(robot, joint_index, angle_range=np.linspace(-pi/3, pi/3, 30), delay=0.05):
+    def test_joint(robot, joint_index, angle_range=np.linspace(-pi/2, pi/2, 40), delay=0.05):
         q = robot.q.copy()
         print(f"\n--- Testing joint {joint_index+1} ---")
         for angle in angle_range:
