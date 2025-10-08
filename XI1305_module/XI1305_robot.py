@@ -16,27 +16,29 @@ class XI1305(DHRobot3D):
         links = self._create_DH()
 
         # Names of the robot link files in the directory
-        link3D_names = dict(link0 = 'XI1305_1', color0 = (0.2,0.2,0.2,1),      # color option only takes effect for stl file
-                            link1 = 'XI1305_2', color1=(0.5,0,0,1),
-                            link2 = 'XI1305_3',
-                            link3 = 'XI1305_4',
-                            link4 = 'XI1305_5',
-                            link5 = 'XI1305_6',
+        link3D_names = dict(link0 = 'Arm1', color0 = (0.2,0.2,0.2,1),      # color option only takes effect for stl file
+                            link1 = 'Arm2', color1=(0.5,0,0,1),
+                            link2 = 'Arm3',
+                            link3 = 'Arm4',
+                            link4 = 'Arm5',
+                            link5 = 'Arm6',
                             link6 = 'XI1305_7')
 
         # A joint config and the 3D object transforms to match that config
-        qtest = [0,0,0,pi,0,0]
+        qtest = [0,0,0,0,0,0]
         qtest_transforms = [spb.transl(0,0,0),
-                            spb.transl(0,0.147,0),
-                            spb.transl(-0.06,0.265,0),
-                            spb.transl(-0.043,0.550,-0.053),
-                            spb.transl(0.003,0.3895,-0.1308),
-                            spb.transl(0.015,0.2095,-0.1308),
-                            spb.transl(0,0.1443,-0.206) @ spb.trotz(0.56723)]
+                            spb.transl(0,0,0.146901),
+                            spb.transl(0,0.062271,0.264968),
+                            spb.transl(0.053091,0.044067 ,0.549595),
+                            spb.transl(0.130547,-0.00214,0.387046),
+                            spb.transl(0.1317,-0.014134,0.207184),
+                            spb.transl(0.207821,0,0.143596)]
+        #for i in range(len(qtest_transforms)):
+            #qtest_transforms[i] = qtest_transforms[i] @ spb.trotx(pi/2)
 
         current_path = os.path.abspath(os.path.dirname(__file__))
         super().__init__(links, link3D_names, name = 'XI1305', link3d_dir = current_path, qtest = qtest, qtest_transforms = qtest_transforms)
-        #self.base = self.base * SE3.Rx(pi/2) * SE3.Ry(pi/2)
+        #self.base = self.base * SE3.Rx(pi/2)# * SE3.Ry(pi/2)
         self.q = qtest
 
     def _create_DH(self):
@@ -44,10 +46,10 @@ class XI1305(DHRobot3D):
             Create robot's standard DH model
             """
             links = [] 
-            a = [0,0,-0.053,-0.0778,0,-0.0752]
-            d = [0.147,0.118,0.285,0.1605,0.18,0.0652]     # Static UR3: [0.1519, 0, 0, 0.11235, 0.08535, 0.0819]
-            alpha = [-pi/2,0,-pi/2,pi/2,-pi/2,0]
-            offset = [0,-1.3849,1.3849,0,0,0]
+            a = [0, 0.28948866, 0.0775, 0, 0.076, 0]
+            d = [0.267, 0, 0, 0.3425, 0, 0.097]
+            alpha = [-pi/2, 0, -pi/2, pi/2, -pi/2, 0]
+            offset = [0, -1.3849179, 1.3849179, 0, 0, 0]
             qlim = [[-2*pi, 2*pi] for _ in range(6)]
             for i in range(6):
                 link = rtb.RevoluteDH(d=d[i], a=a[i], alpha=alpha[i], offset=offset[i], qlim=qlim[i])
@@ -72,7 +74,7 @@ class XI1305(DHRobot3D):
             env.step(0.02)
             fig.step(0.01)
         time.sleep(3)
-        # env.hold()
+        env.hold()
 
 # ---------------------------------------------------------------------------------------#
 if __name__ == "__main__":
