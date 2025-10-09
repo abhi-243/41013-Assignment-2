@@ -23,8 +23,8 @@ for file in os.listdir(mesh_dir):
             mesh.color = color_map.get(file, (1, 1, 1))
 
             # Get position & rotation
-            pos = position_map_start.get(file, (0, 0, 0))
-            rpy = rotation_map_start.get(file, (0, 0, 0))
+            pos = position_map_end.get(file, (0, 0, 0))
+            rpy = rotation_map_end.get(file, (0, 0, 0))
 
             # Build SE3 transformation
             T = sm.SE3(*pos) * sm.SE3.RPY(*rpy, order='xyz')
