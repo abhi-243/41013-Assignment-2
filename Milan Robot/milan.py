@@ -16,13 +16,13 @@ class myCobot(DHRobot3D):
 
         # Names of the robot link files in the directory
         link3D_names = dict(
-            link0='myCobotLink_1', color0=(0.2,0.2,0.2,1),
-            link1='myCobotLink_1.1', color1=(0.5,0,0,1),
-            link2='myCobotLink_3.2', 
-            link3='myCobotLink_4.1',
-            link4='myCobotLink_5.1',
-            link5='myCobotLink_6.1',
-            link6='myCobotAttach'
+            link0='L1', color0=(0.2,0.2,0.2,1),
+            link1='L2', color1=(0.5,0,0,1),
+            link2='L3', 
+            link3='L4',
+            link4='L5',
+            link5='L6',
+            link6='L7.1'
         )
 
         # A joint config and the 3D object transforms to match that config
@@ -30,17 +30,17 @@ class myCobot(DHRobot3D):
 
         # Small offsets to align STL links visually with joint axes
         qtest_transforms = [
-            spb.transl(0,0,0)@ spb.r2t(spb.rotz(3/2*pi)),
-            spb.transl(0, 0, 0) @ spb.r2t(spb.rotz(pi)),  # adjust link2 to stay connected
-            spb.transl(0,0,0)@ spb.r2t(spb.rotz(3/2*pi)),
-            spb.transl(0,0,0)@ spb.r2t(spb.rotz(3/2*pi)),
-            spb.transl(0,0,0)@ spb.r2t(spb.rotz(3/2*pi)),
-            spb.transl(0,0,0)@ spb.r2t(spb.rotz(3/2*pi)),
-            spb.transl(0,0,0)@ spb.r2t(spb.rotz(3/2*pi))
+            spb.transl(0,0,0)@ spb.r2t(spb.rotz(1/2*pi)),
+            spb.transl(0, 0, 0) @ spb.r2t(spb.rotz(1/2*pi)),  # adjust link2 to stay connected
+            spb.transl(0,0,0)@ spb.r2t(spb.rotz(1/2*pi)),
+            spb.transl(0,0,0)@ spb.r2t(spb.rotz(1/2*pi)),
+            spb.transl(0,0,0)@ spb.r2t(spb.rotz(1/2*pi)),
+            spb.transl(0,0,0)@ spb.r2t(spb.rotz(1/2*pi)),
+            spb.transl(0,0,0)@ spb.r2t(spb.rotz(1/2*pi))
         ]
 
         current_path = os.path.abspath(os.path.dirname(__file__))
-        link3d_dir = os.path.join(current_path, "robotlinkstl")
+        link3d_dir = os.path.join(current_path, "MC_STL(ver.1)")
         super().__init__(
             links, link3D_names, name='myCobot',
             link3d_dir=link3d_dir, qtest=qtest,
@@ -56,10 +56,10 @@ class myCobot(DHRobot3D):
         """
 
         links = []
-        a = [0, 0.4, 0.120, 0, 0, 0]
-        d = [0.68, 0, 0, 0.09878, 0.095, 0.0655]
-        alpha = [pi/2, 0, 0, pi/2, -pi/2, -pi]
-        offset = [0,pi/2, 0, pi/2, pi, -pi/2]
+        a = [0, 1.1, 1, 0, 0, 0]
+        d = [1.75, 0, 0, 0.72, -0.78, 1.0655]
+        alpha = [pi/2, 0, 0, pi/2, pi/2, -pi]
+        offset = [0,pi/2, 0, -pi/2, pi, -pi/2]
 
         qlim = [[-pi/2, pi/2] for _ in range(6)]
         for i in range(6):
@@ -102,8 +102,8 @@ if __name__ == "__main__":
             env.step(delay)
 
 
-    # Sequentially test all joints
-    for i in range(r.n):
+    start_joint = 0 # joint index 4 = "Joint 5"
+    for i in range(start_joint, r.n):
         input(f"\nPress Enter to test joint {i+1}...")
         test_joint(r, i)
 
