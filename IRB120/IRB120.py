@@ -2,7 +2,6 @@ import swift
 import roboticstoolbox as rtb
 import spatialmath.base as spb
 from spatialmath import SE3
-from spatialgeometry import Cuboid, Cylinder
 import numpy as np
 from ir_support.robots.DHRobot3D import DHRobot3D
 from math import pi
@@ -50,16 +49,6 @@ class IRB120(DHRobot3D):
             SE3.Trans(0,        0,      0     ), #link5
             SE3.Trans(0,        0,      0.006 )  #link6
         ]
-        
-        self.collision_shapes = [
-            Cuboid(scale=[0.294, 0.180, 0.168], base=qtest_transforms[0] * self.link_offsets[0], collision=True, color=(1,  0.5,    0,  0.0001)),  # link0
-            Cuboid(scale=[0.217, 0.214, 0.186], base=qtest_transforms[1] * self.link_offsets[1], collision=True, color=(1,  0.5,    0,  0.0001)),  # link1
-            Cuboid(scale=[0.114, 0.389, 0.219], base=qtest_transforms[2] * self.link_offsets[2], collision=True, color=(1,  0.5,    0,  0.0001)),  # link2
-            Cuboid(scale=[0.246, 0.194, 0.115], base=qtest_transforms[3] * self.link_offsets[3], collision=True, color=(1,  0.5,    0,  0.0001)),  # link3
-            Cuboid(scale=[0.105, 0.126, 0.193], base=qtest_transforms[4] * self.link_offsets[4], collision=True, color=(1,  0.5,    0,  0.0001)),  # link4
-            Cuboid(scale=[0.132, 0.082, 0.070], base=qtest_transforms[5] * self.link_offsets[5], collision=True, color=(1,  0.5,    0,  0.0001)),  # link5
-            Cuboid(scale=[0.040, 0.040, 0.013], base=qtest_transforms[6] * self.link_offsets[6], collision=True, color=(1,  0.5,    0,  0.0001))   # link6 / EE
-        ]
 
         current_path = os.path.abspath(os.path.dirname(__file__))
         super().__init__(
@@ -101,38 +90,7 @@ class IRB120(DHRobot3D):
                                 offset=offset[i],
                                 qlim=qlim[i]) for i in range(6)]
         return links
-    
-    def update_collisions(self, q=None):
-        """Update link poses for collision detection."""
-        q = self.q if q is None else q
-        for i, shape in enumerate(self.collision_shapes):
-            T_link = self.fk(q, end=i+1)  # transform up to link i+1
-            shape.pose = T_link * self.link_offsets[i]
 
-    def check_environment_collision(self, external_objects, q=None):
-        """
-        Returns True if any link collides with an object in the environment.
-        :param external_objects: list of CollisionShape objects
-        """
-        self.update_collisions(q)
-        for link_shape in self.collision_shapes:
-            for obj in external_objects:
-                if link_shape.iscollided(obj):
-                    return True
-        return False
-
-    def move_with_env_check(self, q_target, external_objects, steps=50, delay=0.02):
-        qtraj = rtb.jtraj(self.q, q_target, steps).q
-        for q in qtraj:
-            self.q = q
-            if self.check_environment_collision(external_objects):
-                log.warning("Collision with environment detected! Motion aborted.")
-                return False
-            if hasattr(self, "env") and self.env:
-                self.env.step(delay)
-        return True
-
-    
     def ee_pose(self):
         """Return the current end-effector pose (SE3)."""
         return self.fkine(self.q)

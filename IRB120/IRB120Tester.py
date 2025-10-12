@@ -33,10 +33,6 @@ class IRB120Tester:
         #self.fig = self.robot.plot(self.robot.q, block=False)
         log.info("Visualization initialized.")
 
-        for shape in self.robot.collision_shapes:
-            self.robot.env.add(shape)  # now self.robot.env exists
-
-
 
     # -----------------------------------------------------------------
     def trajectory_test(self, steps=50, delay=0.02):
@@ -147,8 +143,6 @@ class IRB120Tester:
             self.env.launch(realtime=True)
             self.robot.env = self.env
             self.robot.add_to_env(self.env)
-            for shape in self.robot.collision_shapes:
-                self.env.add(shape)
 
         # Helper for joint motion animation
         def animate(q_sequence):
