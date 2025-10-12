@@ -16,13 +16,13 @@ class myCobot(DHRobot3D):
 
         # Names of the robot link files in the directory
         link3D_names = dict(
-            link0='L1', color0=(0.2,0.2,0.2,1),
-            link1='L2', color1=(0.5,0,0,1),
-            link2='L3', 
-            link3='L4',
-            link4='L5',
-            link5='L6',
-            link6='L7.1'
+            link0='J1', color0=(0.2,0.2,0.2,1),
+            link1='J2', color1=(0.5,0,0,1),
+            link2='J3', 
+            link3='J4',
+            link4='J5',
+            link5='J6',
+            link6='J7'
         )
 
         # A joint config and the 3D object transforms to match that config
@@ -56,8 +56,8 @@ class myCobot(DHRobot3D):
         """
 
         links = []
-        a = [0, 1.1, 1, 0, 0, 0]
-        d = [1.75, 0, 0, 0.72, -0.78, 1.0655]
+        a = [0, 0.24, 0.215, 0, 0, 0]
+        d = [0.315, 0, 0, 0.158, -0.169, 1.0655]
         alpha = [pi/2, 0, 0, pi/2, pi/2, -pi]
         offset = [0,pi/2, 0, -pi/2, pi, -pi/2]
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
             env.step(delay)
 
 
-    start_joint = 0 # joint index 4 = "Joint 5"
+    start_joint = 5# joint index 4 = "Joint 5"
     for i in range(start_joint, r.n):
         input(f"\nPress Enter to test joint {i+1}...")
         test_joint(r, i)
