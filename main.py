@@ -1,4 +1,6 @@
 from IRB120.IRB120 import IRB120
+from myCobot320m5.milan import myCobot
+from XI1305_module.XI1305_robot import XI1305
 from Environment_Meshes.brick_data import color_map, position_map_end, position_map_start, rotation_map_end, rotation_map_start
 from ir_support import UR3
 import swift
@@ -21,14 +23,20 @@ env.step(0.1)
 # === Initialize robots ===
 IRB120_Abhi = IRB120()
 UR3_Given = UR3()
+myCobot320m5 = myCobot()
+XI1305_Hamish = XI1305()
 
 # === Set base poses instead of passing `pose=` to env.add() ===
 IRB120_Abhi.base = sm.SE3(0.5, 0.5, 0.05) * sm.SE3.RPY(-np.pi/2, 0, 0, order='xyz')
 UR3_Given.base = sm.SE3(0.5, -.5, 0.05) * sm.SE3.RPY(np.pi, 0, 0, order='xyz')
+myCobot320m5.base = sm.SE3(-0.5, 0.5, 0.05) * sm.SE3.RPY(np.pi, 0, 0, order='xyz')
+XI1305_Hamish.base = sm.SE3(-0.5, -.5, 0.05) * sm.SE3.RPY(np.pi, 0, 0, order='xyz')
 
 # === Add robots to Swift ===
 IRB120_Abhi.add_to_env(env)
 UR3_Given.add_to_env(env)
+myCobot320m5.add_to_env(env)
+XI1305_Hamish.add_to_env(env)
 
 # === Load environment mesh ===
 env_mesh = sg.Mesh(filename=env_mesh_path)
@@ -66,6 +74,8 @@ print("Running motion...")
 for q in traj:
     IRB120_Abhi.q = q
     UR3_Given.q = q
+    myCobot320m5.q = q
+    XI1305_Hamish.q = q
     env.step(0.02)
 
 print(f"Loaded environment: {os.path.basename(env_mesh_path)}")
