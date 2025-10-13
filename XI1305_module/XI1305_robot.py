@@ -50,7 +50,15 @@ class XI1305(DHRobot3D):
             d = [0.267, 0, 0, 0.3425, 0, 0.097]
             alpha = [-pi/2, 0, -pi/2, pi/2, -pi/2, 0]
             offset = [0, -1.3849179, 1.3849179, 0, 0, 0]
-            qlim = [[-2*pi, 2*pi] for _ in range(6)]
+            #qlim = [[-2*pi, 2*pi] for _ in range(6)]
+            qlim = [
+                [-2*pi, 2*pi],        # J1
+                [-2.059, 2.059],            # J2
+                [-3.927, 0.785],            # J3
+                [-1.692, 1.692],            # J4
+                [-1.692, 1.692],            # J5
+                [-pi, pi]            # J6
+            ]
             for i in range(6):
                 link = rtb.RevoluteDH(d=d[i], a=a[i], alpha=alpha[i], offset=offset[i], qlim=qlim[i])
                 links.append(link)
