@@ -19,16 +19,16 @@ env.launch(realtime=True)
 env.step(0.1)
 
 # === Initialize robots ===
-robot1 = IRB120()
-robot2 = UR3()
+IRB120_Abhi = IRB120()
+UR3_Given = UR3()
 
 # === Set base poses instead of passing `pose=` to env.add() ===
-robot1.base = sm.SE3(0.0, 0.5, 0.05) * sm.SE3.RPY(0, 0, 0, order='xyz')
-robot2.base = sm.SE3(0.0, 2.0, 0.05) * sm.SE3.RPY(0, 0, 0, order='xyz')
+IRB120_Abhi.base = sm.SE3(0.5, 0.5, 0.05) * sm.SE3.RPY(-np.pi/2, 0, 0, order='xyz')
+UR3_Given.base = sm.SE3(0.5, -.5, 0.05) * sm.SE3.RPY(np.pi, 0, 0, order='xyz')
 
 # === Add robots to Swift ===
-robot1.add_to_env(env)
-robot2.add_to_env(env)
+IRB120_Abhi.add_to_env(env)
+UR3_Given.add_to_env(env)
 
 # === Load environment mesh ===
 env_mesh = sg.Mesh(filename=env_mesh_path)
@@ -53,19 +53,19 @@ for file in os.listdir(bricks_mesh_path):
             print(f"Failed to load {file}: {e}")
 
 # === Simple motion demo ===
-q_start = np.zeros(robot1.n)
+q_start = np.zeros(IRB120_Abhi.n)
 q_goal  = q_start + np.array([pi/6, -pi/4, pi/3, 0, pi/6, 0])
 traj = rtb.jtraj(q_start, q_goal, 50).q
 
-robot1.q = q_start
-robot2.q = q_start
+IRB120_Abhi.q = q_start
+UR3_Given.q = q_start
 env.step(0.01)
 
 input("Run motion test")
 print("Running motion...")
 for q in traj:
-    robot1.q = q
-    robot2.q = q
+    IRB120_Abhi.q = q
+    UR3_Given.q = q
     env.step(0.02)
 
 print(f"Loaded environment: {os.path.basename(env_mesh_path)}")
