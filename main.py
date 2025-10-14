@@ -1,7 +1,7 @@
 from IRB120.IRB120 import IRB120
 from myCobot320m5.milan import myCobot
 from XI1305_module.XI1305_robot import XI1305
-from Environment_Meshes.brick_data import color_map, position_map_end, position_map_start, rotation_map_end, rotation_map_start
+from Environment_Meshes.test import stl_data
 from ir_support import UR3
 import swift
 import spatialgeometry as sg
@@ -11,9 +11,15 @@ import numpy as np
 import os
 from math import pi
 
-env_mesh_path = r"Assignments\A2\41013-Assignment-2\Environment_Meshes\Environment\City_Street_Set.dae"
-car_mesh_path = r"Assignments\A2\41013-Assignment-2\Environment_Meshes\Race_Car_correct.dae"
-bricks_mesh_path = r"Assignments\A2\41013-Assignment-2\Environment_Meshes\Bricks"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+env_mesh_path = os.path.join(BASE_DIR, "Environment_Meshes", "Environment", "City_Street_Set-test.dae")
+car_mesh_path = os.path.join(BASE_DIR, "Environment_Meshes", "Race_Car_correct.dae")
+bricks_mesh_path = os.path.join(BASE_DIR, "Environment_Meshes", "Bricks")
+
+# === Set working directory to project root ===
+os.chdir(BASE_DIR)
+print("Working directory set to:", os.getcwd())
 
 # === Launch Swift ===
 env = swift.Swift()
@@ -44,14 +50,22 @@ env_mesh.color = (0.6, 0.6, 0.6)
 env_mesh.T = sm.SE3(0, 0, 0)
 env.add(env_mesh)
 
+# === Load in bricks (start pos) ===
 for file in os.listdir(bricks_mesh_path):
-    if file.endswith(".stl") and file.startswith("scaled_"):
+    if file.endswith(".stl"):
         full_path = os.path.join(bricks_mesh_path, file)
         try:
             mesh = sg.Mesh(filename=full_path)
-            mesh.color = color_map.get(file, (1, 1, 1))
-            pos = position_map_end.get(file, (0, 0, 0))
-            rpy = rotation_map_end.get(file, (0, 0, 0))
+            
+            # Fetch all properties from stl_data
+            brick = stl_data.get(file, None)
+            if brick is None:
+                print(f"No data found for {file}, skipping...")
+                continue
+
+            mesh.color = brick["color"]
+            pos = brick["pos_end"]
+            rpy = brick["rot_end"]
             mesh.T = sm.SE3(*pos) * sm.SE3.RPY(*rpy, order='xyz')
             
             env.add(mesh)
