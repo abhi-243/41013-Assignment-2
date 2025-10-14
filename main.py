@@ -10,6 +10,7 @@ import roboticstoolbox as rtb
 import numpy as np
 import os
 from math import pi
+import time
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -74,23 +75,51 @@ for file in os.listdir(bricks_mesh_path):
         except Exception as e:
             print(f"Failed to load {file}: {e}")
 
-# === Simple motion demo ===
-q_start = np.zeros(IRB120_Abhi.n)
-q_goal  = q_start + np.array([pi/6, -pi/4, pi/3, 0, pi/6, 0])
-traj = rtb.jtraj(q_start, q_goal, 50).q
+# Function to generate a random joint angle within robot limits if available
+def random_joint_angles(robot):
+    try:
+        q_min, q_max = robot.qlim
+        return np.random.uniform(q_min, q_max)
+    except AttributeError:
+        # Default fallback if no limits are defined
+        return np.random.uniform(-np.pi, np.pi, robot.n)
 
-IRB120_Abhi.q = q_start
-UR3_Given.q = q_start
-env.step(0.01)
+# Start all robots from zero
+q_zero = np.zeros(IRB120_Abhi.n)
+IRB120_Abhi.q = q_zero
+UR3_Given.q = q_zero
+myCobot320m5.q = q_zero
+XI1305_Hamish.q = q_zero
+env.step(0.1)
 
-input("Run motion test")
-print("Running motion...")
-for q in traj:
-    IRB120_Abhi.q = q
-    UR3_Given.q = q
-    myCobot320m5.q = q
-    XI1305_Hamish.q = q
-    env.step(0.02)
+input("Press Enter to start random motion demo...")
 
-print(f"Loaded environment: {os.path.basename(env_mesh_path)}")
+# Perform 10 random moves for each robot
+for move_idx in range(10):
+    print(f"\n=== Random Move {move_idx + 1}/10 ===")
+
+    # Generate random targets for each robot
+    q_rand_IRB120 = random_joint_angles(IRB120_Abhi)
+    q_rand_UR3 = random_joint_angles(UR3_Given)
+    q_rand_myCobot = random_joint_angles(myCobot320m5)
+    q_rand_XI1305 = random_joint_angles(XI1305_Hamish)
+
+    # Create smooth joint-space trajectories
+    traj_IRB120 = rtb.jtraj(IRB120_Abhi.q, q_rand_IRB120, 50).q
+    traj_UR3 = rtb.jtraj(UR3_Given.q, q_rand_UR3, 50).q
+    traj_myCobot = rtb.jtraj(myCobot320m5.q, q_rand_myCobot, 50).q
+    traj_XI1305 = rtb.jtraj(XI1305_Hamish.q, q_rand_XI1305, 50).q
+
+    # Animate trajectories simultaneously
+    for i in range(50):
+        IRB120_Abhi.q = traj_IRB120[i]
+        UR3_Given.q = traj_UR3[i]
+        myCobot320m5.q = traj_myCobot[i]
+        XI1305_Hamish.q = traj_XI1305[i]
+        env.step(0.03)
+
+    # Short pause between moves
+#    time.sleep(0.5)
+
+print("All 10 random motions completed.")
 input("Press Enter to exit...")
