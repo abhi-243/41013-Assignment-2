@@ -3,8 +3,9 @@ import spatialgeometry as sg
 import spatialmath as sm
 import os
 
-# === Path to your STL file ===
-mesh_path = r"C:\Users\abhin\OneDrive\Documents\UTS\Spring Semester 2025\41013 Industrial Robotics\Assignments\A2\41013-Assignment-2\Environment Meshes\Environment\City Street Set.dae"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+mesh_path = os.path.join(BASE_DIR, "Environment", "City_Street_Set.dae")
 
 # === Launch Swift environment ===
 env = swift.Swift()
