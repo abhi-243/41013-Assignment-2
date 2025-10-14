@@ -16,13 +16,13 @@ class myCobot(DHRobot3D):
 
         # Names of the robot link files in the directory
         link3D_names = dict(
-            link0='J1', color0=(0.2,0.2,0.2,1),
-            link1='J2', color1=(0.5,0,0,1),
-            link2='J3', 
-            link3='J4',
-            link4='J5',
-            link5='J6',
-            link6='J7'
+            link0='J1', color0=(0.3,0.3,0.3,1),
+            link1='J2', color1=(0.8,0.8,0.8,1),
+            link2='J3', color2=(0.8,0.8,0.8,1),
+            link3='J4', color3=(0.8,0.8,0.8,1),
+            link4='J5',color4=(0.8,0.8,0.8,1),
+            link5='J6',color5=(0.8,0.8,0.8,1),
+            link6='J7', color6=(0.4,0.4,0.4,1)
         )
 
         # A joint config and the 3D object transforms to match that config
