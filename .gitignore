@@ -1,2 +1,9 @@
 # Ignore only the top-level .venv directory
 /.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dll
+*.egg-info/
