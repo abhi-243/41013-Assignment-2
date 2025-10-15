@@ -2,6 +2,7 @@ from IRB120.IRB120 import IRB120
 from myCobot320m5.milan import myCobot
 from XI1305_module.XI1305_robot import XI1305
 from Environment_Meshes.test import stl_data
+from teach_pendant import TeachPendant
 from ir_support import UR3
 import swift
 import spatialgeometry as sg
@@ -32,6 +33,16 @@ IRB120_Abhi = IRB120()
 UR3_Given = UR3()
 myCobot320m5 = myCobot()
 XI1305_Hamish = XI1305()
+
+# # === Initialize Teach Pendant ===
+# robots = {
+#     "IRB120": IRB120_Abhi,
+#     "UR3": UR3_Given,
+#     "myCobot320": myCobot320m5,
+#     "XI1305": XI1305_Hamish
+# }
+# 
+# pendant = TeachPendant(env, robots)
 
 # === Set base poses instead of passing `pose=` to env.add() ===
 IRB120_Abhi.base = sm.SE3(0.5, 0.5, 0.05) * sm.SE3.RPY(-np.pi/2, 0, 0, order='xyz')
@@ -118,8 +129,7 @@ for move_idx in range(10):
         XI1305_Hamish.q = traj_XI1305[i]
         env.step(0.03)
 
-    # Short pause between moves
-#    time.sleep(0.5)
-
 print("All 10 random motions completed.")
 input("Press Enter to exit...")
+
+#pendant.run()
