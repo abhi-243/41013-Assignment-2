@@ -1,9 +1,18 @@
-# Ignore only the top-level .venv directory
+# Ignore only the top-level virtual environment directory
 /.venv/
-__pycache__/
-*.pyc
+
+# Ignore all Python cache directories recursively
+**/__pycache__/
+
+# Ignore Python compiled files everywhere
+*.py[cod]
 *.pyo
 *.pyd
 *.so
 *.dll
+
+# Ignore packaging and metadata
 *.egg-info/
+*.egg
+dist/
+build/
