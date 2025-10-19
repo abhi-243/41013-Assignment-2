@@ -86,14 +86,6 @@ for file in os.listdir(bricks_mesh_path):
         except Exception as e:
             print(f"Failed to load {file}: {e}")
 
-# Function to generate a random joint angle within robot limits if available
-def random_joint_angles(robot):
-    try:
-        q_min, q_max = robot.qlim
-        return np.random.uniform(q_min, q_max)
-    except AttributeError:
-        # Default fallback if no limits are defined
-        return np.random.uniform(-np.pi, np.pi, robot.n)
 
 # Start all robots from zero
 q_zero = np.zeros(IRB120_Abhi.n)
@@ -103,33 +95,92 @@ myCobot320m5.q = q_zero
 XI1305_Hamish.q = q_zero
 env.step(0.1)
 
-input("Press Enter to start random motion demo...")
+##RMRC helper functions
+#ee position
+def fk_position(robot):
+    T = robot.fkine(robot.q)
+    return np.array(T.t).flatten()
 
-# Perform 10 random moves for each robot
-for move_idx in range(10):
-    print(f"\n=== Random Move {move_idx + 1}/10 ===")
+#jacobian matrix
+def linear_jacobian(robot, q):
+    J_full = robot.jacob0(q)
+    return np.array(J_full[0:3, :], dtype=float)
 
-    # Generate random targets for each robot
-    q_rand_IRB120 = random_joint_angles(IRB120_Abhi)
-    q_rand_UR3 = random_joint_angles(UR3_Given)
-    q_rand_myCobot = random_joint_angles(myCobot320m5)
-    q_rand_XI1305 = random_joint_angles(XI1305_Hamish)
+#joint angle limits
+def clip_to_qlim(robot, q):
+    try:
+        qmin, qmax = robot.qlim
+        q_clipped = np.minimum(np.maximum(q, qmin), qmax)
+        return q_clipped
+    except Exception:
+        return q
+    
+#Variables for rmrc
+Kp = 2.0
+dt = 0.05
+max_steps = 200
+vel_limit = 0.2
 
-    # Create smooth joint-space trajectories
-    traj_IRB120 = rtb.jtraj(IRB120_Abhi.q, q_rand_IRB120, 50).q
-    traj_UR3 = rtb.jtraj(UR3_Given.q, q_rand_UR3, 50).q
-    traj_myCobot = rtb.jtraj(myCobot320m5.q, q_rand_myCobot, 50).q
-    traj_XI1305 = rtb.jtraj(XI1305_Hamish.q, q_rand_XI1305, 50).q
+input("Press Enter to start RMRC demo...")
 
-    # Animate trajectories simultaneously
-    for i in range(50):
-        IRB120_Abhi.q = traj_IRB120[i]
-        UR3_Given.q = traj_UR3[i]
-        myCobot320m5.q = traj_myCobot[i]
-        XI1305_Hamish.q = traj_XI1305[i]
-        env.step(0.03)
+robots = [IRB120_Abhi, UR3_Given, myCobot320m5, XI1305_Hamish]
 
-print("All 10 random motions completed.")
+#Target positions
+targets = [
+    [   # IRB120
+        np.array([0.1608,  0.0008, 0.107]),   # Position 1
+        np.array([0,  0.8, 0.5])    # Position 2
+    ],
+    [   # UR3
+        np.array([0.18707, 0.0008, 0.20527]),   # Position 1
+        np.array([0.3, -0.3, 0.5])    # Position 2
+    ],
+    [   # myCobot
+        np.array([-0.5592, 0.0008, 0.075]),  # Position 1
+        np.array([-0.5,  0.5, 0.5])   # Position 2
+    ],
+    [   # XI1305
+        np.array([-0.0792, -0.11895, 0.107]),  # Position 1
+        np.array([-0.5, -0.5, 0.5])   # Position 2
+    ]
+]
+
+#target postion loop
+for phase in range(2):
+    print(f"Moving to target set {phase + 1}")
+    p_des_all = [targets[i][phase] for i in range(len(robots))]
+
+    for step in range(max_steps):
+        all_reached = True
+
+        for i, robot in enumerate(robots):
+            q = robot.q.copy()
+            p_cur = fk_position(robot)
+            p_des = p_des_all[i]
+
+            error = p_des - p_cur
+            err_norm = np.linalg.norm(error)
+
+            #check error within tolerance
+            if err_norm < 5e-3:
+                continue
+            all_reached = False
+
+            v_des = Kp * error
+            v_norm = np.linalg.norm(v_des)
+            if v_norm > vel_limit:
+                v_des = (v_des / v_norm) * vel_limit
+
+            Jv = linear_jacobian(robot, q)
+            dq = np.linalg.pinv(Jv).dot(v_des)
+            q_next = clip_to_qlim(robot, q + dq * dt)
+            robot.q = q_next
+
+        env.step(dt)
+        time.sleep(dt)
+
+        if all_reached:
+            break
+
+print("\n✅ RMRC demo complete.")
 input("Press Enter to exit...")
-
-#pendant.run()
