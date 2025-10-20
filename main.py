@@ -11,6 +11,7 @@ import roboticstoolbox as rtb
 import numpy as np
 import os
 from math import pi
+from GUI import RobotControlUI
 import time
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -61,6 +62,9 @@ env_mesh = sg.Mesh(filename=env_mesh_path)
 env_mesh.color = (0.6, 0.6, 0.6)
 env_mesh.T = sm.SE3(0, 0, 0)
 env.add(env_mesh)
+
+gui = RobotControlUI([IRB120_Abhi,UR3_Given,myCobot320m5,XI1305_Hamish], names=["IRB120", "UR3", "myCobot320", "XI1305"])
+gui.render()
 
 # === Load in bricks (start pos) ===
 for file in os.listdir(bricks_mesh_path):
@@ -177,6 +181,7 @@ for phase in range(2):
             robot.q = q_next
 
         env.step(dt)
+        gui.render()
         time.sleep(dt)
 
         if all_reached:
