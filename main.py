@@ -10,6 +10,7 @@ import spatialmath as sm
 import roboticstoolbox as rtb
 import numpy as np
 import os
+import serial
 from math import pi
 from GUI import RobotControlUI
 import time
@@ -63,8 +64,10 @@ env_mesh.color = (0.6, 0.6, 0.6)
 env_mesh.T = sm.SE3(0, 0, 0)
 env.add(env_mesh)
 
+# === Create UI Object and initialize serial com ===
 gui = RobotControlUI([IRB120_Abhi,UR3_Given,myCobot320m5,XI1305_Hamish], names=["IRB120", "UR3", "myCobot320", "XI1305"])
-gui.render()
+
+ser = serial.Serial('COM8', 9600, timeout=1)
 
 brick_meshes = {}  # Dictionary to store all loaded brick meshes
 
@@ -289,6 +292,16 @@ for phase in range(max_phases):
     for step in range(max_steps):
         all_reached = True
 
+        # Handling UI and EStops
+        gui.render()
+        line = ser.readline().decode('utf-8').strip()
+        if line:
+            print("External E-Stop Triggered!!")
+            break
+        if gui.estop_triggered is True:
+            print("GUI E-Stop Triggered!!")
+            break
+
         for i, robot in enumerate(robots):
             q = robot.q.copy()
             pose_cur = fk_pose(robot)
@@ -350,7 +363,6 @@ for phase in range(max_phases):
                 entry["mesh"].T = robot.fkine(robot.q) * entry["T_rel"]
 
         env.step(dt)
-        gui.render()
         time.sleep(dt)
 
         if all_reached:
