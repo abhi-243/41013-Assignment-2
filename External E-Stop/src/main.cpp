@@ -1,8 +1,10 @@
 #include <Arduino.h>
-#include <Bounce>
 
-const int buttonPin = 2;  
-Bounce button(buttonPin, 10);
+const int buttonPin = 2;
+bool lastButtonState = HIGH;     // Because of INPUT_PULLUP
+bool currentButtonState = HIGH;
+unsigned long lastDebounceTime = 0;
+const unsigned long debounceDelay = 10;  // 10 ms debounce
 
 void setup() {
   pinMode(buttonPin, INPUT_PULLUP);
@@ -11,12 +13,25 @@ void setup() {
 }
 
 void loop() {
-  button.update();
+  int reading = digitalRead(buttonPin);
 
-  if (button.fallingEdge()) {
-    Serial.println("PRESSED");
+  // if the button state has changed
+  if (reading != lastButtonState) {
+    lastDebounceTime = millis();  // reset debounce timer
   }
-  if (button.risingEdge()) {
-    Serial.println("RELEASED");
+
+  // if enough time has passed, consider it a valid state change
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (reading != currentButtonState) {
+      currentButtonState = reading;
+
+      if (currentButtonState == LOW) {
+        Serial.println("RELEASED");
+      } else {
+        Serial.println("PRESSED");
+      }
+    }
   }
+
+  lastButtonState = reading;
 }
