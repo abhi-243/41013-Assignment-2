@@ -173,23 +173,40 @@ def get_link_meshes(link):
 def check_ellipsoid_collision(robot_ellipsoid, env_objects, brick_points_list):
     """
     Returns True if any collision detected with environment meshes or bricks.
+    Works without requiring a 'radii' attribute in EllipsoidRobot.
     """
     # Check bricks
     for points in brick_points_list:
-        for T, radii in zip(robot_ellipsoid.ellipsoid_matrices, robot_ellipsoid.radii):
-            points_local = (np.linalg.inv(T) @ np.hstack((points, np.ones((points.shape[0],1))).T))[:3,:].T
+        for ellipsoid_info in robot_ellipsoid.ellipsoid_matrices:
+            T = ellipsoid_info['center']
+            shape_matrix = ellipsoid_info['matrix']
+
+            # Compute radii from shape matrix
+            eigvals, _ = np.linalg.eigh(shape_matrix)
+            radii = np.sqrt(eigvals)
+
+            # Transform points to ellipsoid local frame
+            points_local = (np.linalg.inv(np.vstack((
+                                np.hstack((np.eye(3), T.reshape(3,1))),
+                                np.array([0,0,0,1])
+                              ))) @ np.hstack((points, np.ones((points.shape[0],1))).T))[:3,:].T
             dist = np.sum((points_local / radii)**2, axis=1)
             if np.any(dist < 1.0):
                 return True
 
     # Check environment meshes (coarse check: center distance)
-    for link_T, radii in zip(robot_ellipsoid.ellipsoid_matrices, robot_ellipsoid.radii):
-        link_center = np.array(link_T.t).flatten()
+    for ellipsoid_info in robot_ellipsoid.ellipsoid_matrices:
+        link_center = ellipsoid_info['center']
+        shape_matrix = ellipsoid_info['matrix']
+        eigvals, _ = np.linalg.eigh(shape_matrix)
+        radii = np.sqrt(eigvals)
+
         for obj in env_objects:
             if hasattr(obj, "T"):
                 obj_center = np.array(sm.SE3(obj.T).t).flatten()
                 if np.linalg.norm(link_center - obj_center) < np.max(radii):
                     return True
+
     return False
 
 # === Repulsive velocity for collision avoidance ===
