@@ -63,15 +63,12 @@ env_mesh.color = (0.6, 0.6, 0.6)
 env_mesh.T = sm.SE3(0, 0, 0)
 env.add(env_mesh)
 
-<<<<<<< Updated upstream
 gui = RobotControlUI([IRB120_Abhi,UR3_Given,myCobot320m5,XI1305_Hamish], names=["IRB120", "UR3", "myCobot320", "XI1305"])
 gui.render()
 
-# === Load in bricks (start pos) ===
-=======
-brick_meshes = {}  # Dictionary to store meshes
+brick_meshes = {}  # Dictionary to store all loaded brick meshes
 
->>>>>>> Stashed changes
+# === Load in bricks (start pos) ===
 for file in os.listdir(bricks_mesh_path):
     if file.endswith(".stl"):
         full_path = os.path.join(bricks_mesh_path, file)
