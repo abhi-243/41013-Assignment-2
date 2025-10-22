@@ -49,7 +49,7 @@ XI1305_Hamish = XI1305()
 # === Set base poses instead of passing `pose=` to env.add() ===
 IRB120_Abhi.base = sm.SE3(0.4, 0.4, 0.05) * sm.SE3.RPY(-np.pi/2, 0, 0, order='xyz')
 UR3_Given.base = sm.SE3(0.35, -.35, 0.05) * sm.SE3.RPY(np.pi, 0, 0, order='xyz')
-myCobot320m5.base = sm.SE3(-0.5, 0.5, 0.05) * sm.SE3.RPY(0, 0, 0, order='xyz')
+myCobot320m5.base = sm.SE3(-0.5, 0.45, 0.05) * sm.SE3.RPY(0, 0, 0, order='xyz')
 XI1305_Hamish.base = sm.SE3(-0.5, -0.5, 0.05) * sm.SE3.RPY(0, 0, 0, order='xyz')
 
 # === Add robots to Swift ===
@@ -101,7 +101,7 @@ for file in os.listdir(bricks_mesh_path):
 q_zero = np.zeros(IRB120_Abhi.n)
 IRB120_Abhi.q = q_zero
 UR3_Given.q = q_zero
-myCobot320m5.q = np.array([0, -pi/4, pi/2, 0, pi/4, 0])
+myCobot320m5.q = q_zero
 XI1305_Hamish.q = np.array([0, -pi/4, pi/2, 0, 0, 0])
 myCobot320m5.tool = sm.SE3.Rx(np.pi/2)  # adjust if EE points sideways
 XI1305_Hamish.tool = sm.SE3.Rx(np.pi)   # flip so z-axis points down
@@ -142,10 +142,10 @@ def clip_to_qlim(robot, q):
 
     
 #Variables for rmrc
-Kp = 4
+Kp = 2
 dt = 0.1
 max_steps = 200
-vel_limit = 0.4
+vel_limit = 0.8
 
 robots = [IRB120_Abhi, UR3_Given, myCobot320m5, XI1305_Hamish]
 
@@ -207,15 +207,15 @@ targets = [
 
     # myCobot targets
     [
-        [-0.5349, 0.56355, 0.6, 0, 0, 0],
-        [-0.0792, 0.1208, 0.107, 0, 0, 0], #9
+        [-0.19349, 0.56355, 0.05, 0, 0, 0],
+        [-0.0792, 0.2008, 0.107, 0, 0, 0], #9
         [-0.2432, 0.70297, 0.05, 0, 0, 0],
         [0.0008, 0.2008, 0.107, 0, 0, 0], #12
         [-0.5469, 0.74508, 0.05, 0, 0, 0],
         [-0.2392, 0.0008, 0.107, 0, 0, 0], #13
         [-0.48085, 0.26724, 0.05, 0, 0, 0],
         [-0.2792, 0.0008, 0.203, 0, 0, 0], #21
-        [-0.66261, 0.30192, 0.05, 0, 0, 0],
+        [-0.66261, 0.10192, 0.05, 0, 0, 0],
         [-0.1992, 0.0008, 0.203, 0, 0, 0], #22
         [-0.74034, 0.45166, 0.05, 0, 0, 0],
         [-0.3192, 0.2118, 0.08, 0, 0, 0], #24
@@ -226,13 +226,13 @@ targets = [
     # XI1305 targets "XI1305": ["8.stl", "10.stl", "11.stl", "14.stl", "23.stl", "27.stl"]    
     [
         [-0.7277, 0.15, 0.05, 0, 0, 0],
-        [-0.1192, 0.0008, 0.1, 0, 0, 0], #8
+        [-0.1192, 0.0008, 0.075, 0, 0, 0], #8
         [-0.21167, -0.59785, 0.05, 0, 0, 0],
         [-0.0792, -0.11895, 0.107, 0, 0, 0], #10
         [-0.21111, -0.43383, 0.05, 0, 0, 0],
         [0.0008, -0.1992, 0.107, 0, 0, 0], #11
         [-0.46877, -0.75245, 0.05, 0, 0, 0],
-        [-0.5592, 0.0008, 0.075, pi/2, 0, 0], #14
+        [-0.5592, 0.0008, 0.075, 0, 0, 0], #14
         [-0.7384, -0.46326, 0.05, 0, 0, 0],
         [-0.3192, -0.2102, 0.08, 0, 0, 0], #23
         [-0.68106, -0.25906, 0.05, 0, 0, 0],
@@ -241,16 +241,24 @@ targets = [
 ]
  
 global_sequence = [
-   
-    (3, "pick", "11.stl"),     
-    (3, "place", "11.stl"), 
+    (2, "pick", "9.stl"),     
+    (2, "place", "9.stl"), 
+
+    (2, "pick", "12.stl"),     
+    (2, "place", "12.stl"), 
+
+    (2, "pick", "13.stl"),     
+    (2, "place", "13.stl"), 
 
     (3, "pick", "10.stl"),     
     (3, "place", "10.stl"), 
 
     (3, "pick", "8.stl"),     
     (3, "place", "8.stl"), 
-    
+   
+    (3, "pick", "11.stl"),     
+    (3, "place", "11.stl"), 
+
     (3, "pick", "14.stl"),     
     (3, "place", "14.stl"), 
 
@@ -442,6 +450,10 @@ for step_idx, (robot_idx, action, stl_name) in enumerate(global_sequence):
         q_next = clip_to_qlim(robot, q + dq * dt)
         robot.q = q_next
         T = robot.fkine(robot.q)
+        print("Joint 2 limits:", myCobot320m5.qlim[:,1])
+        print("Current q2:", myCobot320m5.q[1])
+        print("T", myCobot320m5.q[1])
+
 
 
         # update attached mesh if holding
