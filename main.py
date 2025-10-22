@@ -35,19 +35,19 @@ UR3_Given = UR3()
 myCobot320m5 = myCobot()
 XI1305_Hamish = XI1305()
 
-ellipsoids_robot1 = EllipsoidRobot(IRB120_Abhi, default_height=0.25, default_width=0.25)
-ellipsoids_robot2 = EllipsoidRobot(UR3_Given, default_height=0.25, default_width=0.25)
-ellipsoids_robot3 = EllipsoidRobot(myCobot320m5, default_height=0.25, default_width=0.25)
-ellipsoids_robot4 = EllipsoidRobot(XI1305_Hamish, default_height=0.25, default_width=0.25)
+ellipsoids_robot1 = EllipsoidRobot(IRB120_Abhi, default_height=0.05, default_width=0.05)
+ellipsoids_robot2 = EllipsoidRobot(UR3_Given, default_height=0.05, default_width=0.05)
+ellipsoids_robot3 = EllipsoidRobot(myCobot320m5, default_height=0.05, default_width=0.05)
+ellipsoids_robot4 = EllipsoidRobot(XI1305_Hamish, default_height=0.05, default_width=0.05)
 
 ellipsoids_robot1.ellipsoid_for_robot_links(IRB120_Abhi.q)
-ellipsoids_robot1.plot_ellipsoids()
+#ellipsoids_robot1.plot_ellipsoids()
 ellipsoids_robot2.ellipsoid_for_robot_links(UR3_Given.q)
-ellipsoids_robot2.plot_ellipsoids()
+#ellipsoids_robot2.plot_ellipsoids()
 ellipsoids_robot3.ellipsoid_for_robot_links(myCobot320m5.q)
-ellipsoids_robot3.plot_ellipsoids()
+#ellipsoids_robot3.plot_ellipsoids()
 ellipsoids_robot4.ellipsoid_for_robot_links(XI1305_Hamish.q)
-ellipsoids_robot4.plot_ellipsoids()
+#ellipsoids_robot4.plot_ellipsoids()
 
 # # === Initialize Teach Pendant ===
 # robots = {
@@ -103,6 +103,8 @@ for file in os.listdir(bricks_mesh_path):
             rpy = brick["rot_end"]
             mesh.T = sm.SE3(*pos) * sm.SE3.RPY(*rpy, order='xyz')
             
+            mesh.is_brick = True  # <-- mark it as a brick
+            
             env.add(mesh)
             env.step(0.01)  # Step after each addition
             print(f"Loaded {file} → Pos: {pos}, Rot: {rpy}, Color: {mesh.color}")
@@ -117,7 +119,7 @@ brick_points_list = []
 for mesh in env_objects:
     # Only bricks (skip main environment)
     if getattr(mesh, "is_brick", False):
-        points = mesh.vertices  # or sample points
+        points = mesh.v  # or sample points
         brick_points_list.append(points)
 
 # Start all robots from zero
@@ -129,15 +131,14 @@ XI1305_Hamish.q = q_zero
 env.step(0.1)
 
 def check_robot_collision(robot_ellipsoid, other_ellipsoids):
-    """
-    Check if robot collides with any other robot.
-    """
     for other in other_ellipsoids:
         if other == robot_ellipsoid:
             continue
-        for T1, r1 in zip(robot_ellipsoid.ellipsoid_matrices, robot_ellipsoid.radii):
-            for T2, r2 in zip(other.ellipsoid_matrices, other.radii):
-                dist = np.linalg.norm(np.array(T1.t) - np.array(T2.t))
+        for i1 in range(len(robot_ellipsoid.ellipsoid_matrices)):
+            T1, r1 = robot_ellipsoid.get_ellipsoid_transform_and_radii(i1)
+            for i2 in range(len(other.ellipsoid_matrices)):
+                T2, r2 = other.get_ellipsoid_transform_and_radii(i2)
+                dist = np.linalg.norm(T1 - T2)  # <-- fixed here
                 if dist < (np.linalg.norm(r1) + np.linalg.norm(r2)):
                     return True
     return False
@@ -172,11 +173,10 @@ def get_link_meshes(link):
 
 def check_ellipsoid_collision(robot_ellipsoid, env_objects, brick_points_list):
     """
-    Returns True if any collision detected with environment meshes or bricks.
-    Works without requiring a 'radii' attribute in EllipsoidRobot.
+    Returns (collision_detected: bool, colliding_brick_index: int or None)
     """
     # Check bricks
-    for points in brick_points_list:
+    for idx, points in enumerate(brick_points_list):
         for ellipsoid_info in robot_ellipsoid.ellipsoid_matrices:
             T = ellipsoid_info['center']
             shape_matrix = ellipsoid_info['matrix']
@@ -192,7 +192,7 @@ def check_ellipsoid_collision(robot_ellipsoid, env_objects, brick_points_list):
                               ))) @ np.hstack((points, np.ones((points.shape[0],1))).T))[:3,:].T
             dist = np.sum((points_local / radii)**2, axis=1)
             if np.any(dist < 1.0):
-                return True
+                return True, idx  # collision with this brick
 
     # Check environment meshes (coarse check: center distance)
     for ellipsoid_info in robot_ellipsoid.ellipsoid_matrices:
@@ -205,9 +205,9 @@ def check_ellipsoid_collision(robot_ellipsoid, env_objects, brick_points_list):
             if hasattr(obj, "T"):
                 obj_center = np.array(sm.SE3(obj.T).t).flatten()
                 if np.linalg.norm(link_center - obj_center) < np.max(radii):
-                    return True
+                    return True, None  # collision with environment
 
-    return False
+    return False, None
 
 # === Repulsive velocity for collision avoidance ===
 def repulsive_velocity(robot, env_objects, eta=0.5, threshold=0.5):
@@ -331,11 +331,14 @@ for phase in range(2):
             q_next = clip_to_qlim(robot, q + dq * dt)
 
             # --- Collision Checks ---
-            env_collision = check_ellipsoid_collision(ellipsoids[i], env_objects, brick_points_list)
+            env_collision, brick_idx = check_ellipsoid_collision(ellipsoids[i], env_objects, brick_points_list)
             robot_collision = check_robot_collision(ellipsoids[i], [e for j,e in enumerate(ellipsoids) if j != i])
-            
+
             if env_collision or robot_collision:
                 q_next = q  # hold position
+                if brick_idx is not None:
+                    print(f"Robot {i} colliding with brick {brick_idx}")
+
 
             robot.q = q_next
 
