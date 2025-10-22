@@ -309,9 +309,6 @@ max_phases = max(len(robot_targets) for robot_targets in targets)
 approach_offset = 0.05
 # ---------- Attach/place helpers (drop-in) ----------
 def attach_mesh_to_ee(robot, mesh, height_offset=-0.03):
-    """
-    Attaches a mesh to the robot's end effector.
-    """
     # Remove mesh from environment if it's already there
     try:
         robot.env.remove(mesh)
@@ -327,14 +324,12 @@ def attach_mesh_to_ee(robot, mesh, height_offset=-0.03):
     ee_link._children.append(mesh)
     mesh._parent = ee_link
 
-    print(f"✅ Attached {os.path.basename(mesh.filename)} to {robot.name}")
+    print(f"Attached {os.path.basename(mesh.filename)} to {robot.name}")
     return T_rel
 
 
 def detach_mesh_from_ee(env, robot, mesh, place_pose=None):
-    """
-    Detaches mesh from robot's end effector and places it into the world at the desired pose.
-    """
+
     ee_link = robot.links[-1]
     if mesh in ee_link._children:
         ee_link._children.remove(mesh)
@@ -348,7 +343,7 @@ def detach_mesh_from_ee(env, robot, mesh, place_pose=None):
         mesh.T = robot.fkine(robot.q)
 
     env.add(mesh)
-    print(f"✅ Detached {os.path.basename(mesh.filename)} from {robot.name}")
+    print(f" Detached {os.path.basename(mesh.filename)} from {robot.name}")
 
 # ---------- State ----------
 attached_meshes = [None] * len(robots)      
@@ -376,7 +371,7 @@ for step_idx, (robot_idx, action, stl_name) in enumerate(global_sequence):
 
     stl_mesh = brick_meshes.get(stl_name)
     if stl_mesh is None:
-        print(f"⚠️ STL {stl_name} not found, skipping...")
+        print(f"STL {stl_name} not found, skipping...")
         continue
 
     # find the correct target for this STL and action
@@ -385,13 +380,13 @@ for step_idx, (robot_idx, action, stl_name) in enumerate(global_sequence):
     try:
         stl_index = robot_targets.index(stl_name)
     except ValueError:
-        print(f"⚠️ {stl_name} not assigned to {robot_name}, skipping.")
+        print(f"{stl_name} not assigned to {robot_name}, skipping.")
         continue
 
     # even index = pick, odd index = place
     target_idx = stl_index * 2 + (1 if action == "place" else 0)
     if target_idx >= len(target_list):
-        print(f"⚠️ No valid pose for {stl_name}.")
+        print(f"No valid pose for {stl_name}.")
         continue
 
     pose_des = np.array(target_list[target_idx], dtype=float)
@@ -400,7 +395,7 @@ for step_idx, (robot_idx, action, stl_name) in enumerate(global_sequence):
     for step in range(max_steps):
         gui.render()
         if gui.estop_triggered:
-            print("🚨 Emergency Stop!")
+            print("Emergency Stop!")
             break
 
         q = robot.q.copy()
@@ -424,17 +419,17 @@ for step_idx, (robot_idx, action, stl_name) in enumerate(global_sequence):
             if action == "pick":
                 T_rel = attach_mesh_to_ee(robot, stl_mesh, height_offset=-0.03)
                 attached_meshes[robot_idx] = {"mesh": stl_mesh, "T_rel": T_rel}
-                print(f"✅ {robot_name} picked {stl_name}")
+                print(f" {robot_name} picked {stl_name}")
             elif action == "place":
                 if attached_meshes[robot_idx] is not None:
                     entry = attached_meshes[robot_idx]
                     mesh = entry["mesh"]
                     detach_mesh_from_ee(env, robot, mesh, pose_des)
                     attached_meshes[robot_idx] = None
-                    print(f"✅ {robot_name} placed {stl_name}")
+                    print(f"{robot_name} placed {stl_name}")
             break
         if check_self_collision(robot):
-            print(f"⚠️ {robot_name} in self-collision, stopping motion!")
+            print(f" {robot_name} in self-collision, stopping motion!")
             break
 
 
@@ -450,11 +445,6 @@ for step_idx, (robot_idx, action, stl_name) in enumerate(global_sequence):
         q_next = clip_to_qlim(robot, q + dq * dt)
         robot.q = q_next
         T = robot.fkine(robot.q)
-        print("Joint 2 limits:", myCobot320m5.qlim[:,1])
-        print("Current q2:", myCobot320m5.q[1])
-        print("T", myCobot320m5.q[1])
-
-
 
         # update attached mesh if holding
         if attached_meshes[robot_idx] is not None:
