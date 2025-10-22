@@ -10,7 +10,7 @@ import spatialmath as sm
 import roboticstoolbox as rtb
 import numpy as np
 import os
-#import serial
+import serial
 from math import pi
 from GUI import RobotControlUI
 import time
@@ -67,7 +67,7 @@ env.add(env_mesh)
 # === Create UI Object and initialize serial com ===
 gui = RobotControlUI([IRB120_Abhi,UR3_Given,myCobot320m5,XI1305_Hamish], names=["IRB120", "UR3", "myCobot320", "XI1305"])
 
-#ser = serial.Serial('COM8', 9600, timeout=1)
+ser = serial.Serial('COM9', 9600, timeout=1)
 
 brick_meshes = {}  # Dictionary to store all loaded brick meshes
 
@@ -345,10 +345,23 @@ def detach_mesh_from_ee(env, robot, mesh, place_pose=None):
     env.add(mesh)
     print(f" Detached {os.path.basename(mesh.filename)} from {robot.name}")
 
+def check_hardware_estop():
+    global hardware_estop_triggered
+    while ser.in_waiting:  # read all available lines
+        line = ser.readline().decode().strip()
+        if line == "PRESSED":
+            hardware_estop_triggered = True
+            print("HARDWARE E-STOP ACTIVATED!")
+        elif line == "RELEASED":
+            # Optionally ignore, or reset manually later
+            pass
+    return hardware_estop_triggered
+
 # ---------- State ----------
 attached_meshes = [None] * len(robots)      
 placing_scheduled = [False] * len(robots)  
 place_pose_next = [None] * len(robots)
+hardware_estop_triggered = False
 
 # offsets
 rot_offset = sm.SE3.Rx(np.pi)             
@@ -394,7 +407,7 @@ for step_idx, (robot_idx, action, stl_name) in enumerate(global_sequence):
     # ---- RMRC motion for this single robot ----
     for step in range(max_steps):
         gui.render()
-        if gui.estop_triggered:
+        if gui.estop_triggered or check_hardware_estop():
             print("Emergency Stop!")
             break
 
