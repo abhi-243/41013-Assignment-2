@@ -2,7 +2,7 @@
 
 **Subject:** 41013 Industrial Robotics  
 **University:** University of Technology Sydney (UTS)  
-**Author:** Abhi Naglapura (+ team)  
+**Author:** Abhi Naglapura, Quoc Duong, Hamish Judson
 **License:** MIT
 
 ---
